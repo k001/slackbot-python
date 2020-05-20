@@ -26,3 +26,7 @@ jobs:
           # Enable linters
           black: true
           flake8: true
+          auto_fix: true
+          git_name: "Tapatio"
+          git_email: "tapatio@k001operator.info"
+          commit_message: "Fix code style issues with ${linter}, seriously why?"
