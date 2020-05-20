@@ -19,26 +19,26 @@ def atlassian_jira(user, action, parameter):
     jira_password = config.get("jira_password")
 
     options = {
-        'server': 'https://agapigroup.atlassian.net',
+        "server": "https://agapigroup.atlassian.net",
     }
     jira = JIRA(options, basic_auth=(jira_username, jira_password))
 
-    if action == 'projects':
+    if action == "projects":
         return projects(jira, parameter)
-    elif action == 'info':
+    elif action == "info":
         return info(jira, parameter)
-    elif action == 'assign':
+    elif action == "assign":
         return assign(jira, parameter)
-    elif action == 'comment':
+    elif action == "comment":
         return comment(user, jira, parameter)
-    elif action == 'create':
+    elif action == "create":
         return create(user, jira, parameter)
-    elif action == 'close':
+    elif action == "close":
         return close(user, jira, parameter)
 
 
 def info(jira, parameter):
-    issue = jira.issue(parameter, fields='summary,assignee,status')
+    issue = jira.issue(parameter, fields="summary,assignee,status")
     issue_id = parameter
     issue_url = "<" + issue.permalink() + "|" + issue_id + ">"
     summary = issue.fields.summary
@@ -54,10 +54,16 @@ def info(jira, parameter):
     elif status == "In Progress":
         color = "#ffd351"
 
-    message = {'fallback': 'jira integration', 'pretext': summary, 'color': color,
-                            'fields': [{'title': 'Issue ID', 'value': issue_url, 'short': True},
-                                       {'title': 'Assignee', 'value': assignee, 'short': True},
-                                       {'title': 'Status', 'value': status, 'short': True}, ]}
+    message = {
+        "fallback": "jira integration",
+        "pretext": summary,
+        "color": color,
+        "fields": [
+            {"title": "Issue ID", "value": issue_url, "short": True},
+            {"title": "Assignee", "value": assignee, "short": True},
+            {"title": "Status", "value": status, "short": True},
+        ],
+    }
     return message
 
 
@@ -72,12 +78,17 @@ def comment(user, jira, parameter):
     m = re.match(r"(\w+-\d+) (.*)", parameter)
     jira_id = m.group(1)
     jira_comment = m.group(2)
-    jira_comment =+ "\n Comment by %s" % user
+    jira_comment = +"\n Comment by %s" % user
 
     try:
         jira.add_comment(jira_id, jira_comment)
     except JIRAError as e:
-        response = "%s: ERROR %s %s (!jira comment %s)" % (user, str(e.status_code), str(e.text), parameter)
+        response = "%s: ERROR %s %s (!jira comment %s)" % (
+            user,
+            str(e.status_code),
+            str(e.text),
+            parameter,
+        )
         return response
 
 
@@ -87,17 +98,22 @@ def create(user, jira, parameter):
     jira_summary = m.group(2)
     jira_description = "Created by user %s" % user
     issue_dict = {
-        'project': {'key': jira_key},
-        'summary': jira_summary,
-        'description': jira_description,
-        'issuetype': {'name': 'Bug'},
-        'assignee': {'name': user},
+        "project": {"key": jira_key},
+        "summary": jira_summary,
+        "description": jira_description,
+        "issuetype": {"name": "Bug"},
+        "assignee": {"name": user},
     }
 
     try:
         jira.create_issue(fields=issue_dict)
     except JIRAError as e:
-        response = "%s: ERROR %s %s (!jira create %s)" % (user, str(e.status_code), str(e.text), parameter)
+        response = "%s: ERROR %s %s (!jira create %s)" % (
+            user,
+            str(e.status_code),
+            str(e.text),
+            parameter,
+        )
         return response
 
 
@@ -110,15 +126,21 @@ def close(user, jira, parameter):
     issue = jira.issue(jira_key)
 
     try:
-        jira.transition_issue(issue, '5', comment=jira_comment)
+        jira.transition_issue(issue, "5", comment=jira_comment)
     except JIRAError as e:
-        response = "%s: ERROR %s %s (!jira close %s)" % (user, str(e.status_code), str(e.text), parameter)
+        response = "%s: ERROR %s %s (!jira close %s)" % (
+            user,
+            str(e.status_code),
+            str(e.text),
+            parameter,
+        )
         return response
+
 
 def projects(jira, parameter):
     p = jira.projects()
 
-    all_projects = ''
+    all_projects = ""
     for project in p:
         all_projects += "%s: %s\n" % (project.key, project.name)
 
@@ -138,10 +160,10 @@ def on_message(msg, server):
     return atlassian_jira(user, action, parameter)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print "Running from cmd line"
-    atlassian_jira('fsalum', 'info', 'INFRA-35')
-    #atlassian_jira('fsalum', 'comment', 'INFRA-20 testing comment')
-    #atlassian_jira('fsalum', 'create', 'INFRA Create new ticket via Slack')
-    #atlassian_jira('fsalum', 'close', 'INFRA-33 test completed')
-    #atlassian_jira('fsalum', 'projects', None)
+    atlassian_jira("fsalum", "info", "INFRA-35")
+    # atlassian_jira('fsalum', 'comment', 'INFRA-20 testing comment')
+    # atlassian_jira('fsalum', 'create', 'INFRA Create new ticket via Slack')
+    # atlassian_jira('fsalum', 'close', 'INFRA-33 test completed')
+    # atlassian_jira('fsalum', 'projects', None)

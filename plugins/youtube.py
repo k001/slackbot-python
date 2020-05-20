@@ -5,6 +5,7 @@ from urllib import quote
 
 import requests
 
+
 def youtube(searchterm):
     searchterm = quote(searchterm)
     url = "https://gdata.youtube.com/feeds/api/videos?q={}&orderBy=relevance&alt=json"
@@ -21,10 +22,12 @@ def youtube(searchterm):
 
     return video
 
+
 def on_message(msg, server):
     text = msg.get("text", "")
     match = re.findall(r"!youtube (.*)", text)
-    if not match: return
+    if not match:
+        return
 
     searchterm = match[0]
     return youtube(searchterm)

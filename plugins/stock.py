@@ -6,8 +6,11 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
+
 def stock(searchterm):
-    url = "http://www.shutterstock.com/cat.mhtml?searchterm={}&search_group=&lang=en&language=en&search_source=search_form&version=llv1".format(searchterm)
+    url = "http://www.shutterstock.com/cat.mhtml?searchterm={}&search_group=&lang=en&language=en&search_source=search_form&version=llv1".format(
+        searchterm
+    )
     r = requests.get(url)
     soup = BeautifulSoup(r.text)
     images = [x["src"] for x in soup.select(".gc_clip img")]
@@ -15,10 +18,12 @@ def stock(searchterm):
 
     return images[0] if images else ""
 
+
 def on_message(msg, server):
     text = msg.get("text", "")
     match = re.findall(r"!stock (.*)", text)
-    if not match: return
+    if not match:
+        return
 
     searchterm = match[0]
     return stock(searchterm)
